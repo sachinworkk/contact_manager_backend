@@ -1,0 +1,10 @@
+#Installed modules via npm
+node_modules/
+
+# IDEs
+.idea
+.vscode
+
+# config
+.env
+config.js

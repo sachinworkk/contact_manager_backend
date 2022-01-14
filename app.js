@@ -1,14 +1,22 @@
 const express = require("express");
+var bodyParser = require("body-parser");
+
 const app = express();
 
-const config = require("./config");
+const mongoose = require("mongoose");
+
+require("dotenv").config();
 
 const urls = require("./api/routes/urls");
 
-const PORT = process.env.PORT || config.port;
+const PORT = process.env.PORT;
 
 const swaggerJSDoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
+
+const monogoDbUrl = `mongodb://admin:${process.env.DB_PASS}@contact-manager-backend-shard-00-00.9g2jh.mongodb.net:27017,contact-manager-backend-shard-00-01.9g2jh.mongodb.net:27017,contact-manager-backend-shard-00-02.9g2jh.mongodb.net:27017/contact-manager-backend?ssl=true&replicaSet=atlas-kf0ygr-shard-0&authSource=admin&retryWrites=true&w=majority`;
+
+mongoose.connect(monogoDbUrl, () => console.log("Database Connected"));
 
 /**
  * Swagger Documentation setup.
@@ -37,6 +45,12 @@ const swaggerSpec = swaggerJSDoc(options);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }));
+
+// parse application/json
+app.use(bodyParser.json());
+
 /**
  * API Routes.
  */
@@ -47,4 +61,4 @@ app.use(urls.CONTACTS, contactRoutes);
 /**
  * Start the server on the specified port.
  */
-app.listen(config.port, () => console.log(`Server is running on PORT ${PORT}`));
+app.listen(PORT, () => console.log(`Server is running on PORT ${PORT}`));

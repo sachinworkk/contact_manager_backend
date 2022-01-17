@@ -8,6 +8,8 @@ const contactController = require("../controllers/contactController");
  * /contacts:
  *     get:
  *       summary: Get all contacts
+ *       tags:
+ *          - Contact
  *     responses:
  *         200:
  *          description: Success
@@ -17,8 +19,39 @@ router.get("/", contactController.getContact);
 /**
  * @swagger
  * /contacts:
+ *     get:
+ *       summary: Get contacts by id
+ *       tags:
+ *          - Contact
+ *     parameters:
+ *      - in: path
+ *        name: id
+ *     responses:
+ *         200:
+ *          description: Success
+ */
+router.get("/:contactId", contactController.getContactById);
+
+/**
+ * @swagger
+ * /contacts/numbers/type:
+ *     get:
+ *       summary: Get contact numbers type
+ *       tags:
+ *          - Contact
+ *     responses:
+ *         200:
+ *          description: Success
+ */
+router.get("/numbers/type", contactController.getContactNumbersType);
+
+/**
+ * @swagger
+ * /contacts:
  *     post:
- *        description: Create a new contact
+ *        summary: Create a new contact
+ *        tags:
+ *           - Contact
  *     responses:
  *         200:
  *          description: Success
@@ -29,7 +62,9 @@ router.post("/", contactController.postContact);
  * @swagger
  * /contacts/{id}:
  *     put:
- *        description: Update Contact
+ *        summary: Update Contact
+ *        tags:
+ *           - Contact
  *     parameters:
  *      - in: path
  *        name: id
@@ -43,7 +78,9 @@ router.put("/:contactId", contactController.putContact);
  * @swagger
  * /contacts/{id}:
  *     delete:
- *        description: Delete contact
+ *         summary: Delete contact
+ *         tags:
+ *            - Contact
  *     parameters:
  *      - in: path
  *        name: id

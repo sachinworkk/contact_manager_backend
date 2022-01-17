@@ -7,6 +7,7 @@ const contactSchema = mongoose.Schema({
   photograph: { type: String, required: true },
   address: { type: String, required: true },
   email: { type: mongoose.SchemaTypes.Email, required: true },
+  isFavorite: { type: mongoose.SchemaTypes.Boolean, default: false },
 });
 
 module.exports = mongoose.model("Contact", contactSchema);

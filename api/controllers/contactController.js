@@ -50,7 +50,7 @@ const postContact = async (req, res, next) => {
     contact = new Contact({
       name: req.body.name,
       phone: contactNumbersIds,
-      photograph: req.body.photograph,
+      photograph: req.file.path,
       address: req.body.address,
       email: req.body.email,
     });

@@ -1,7 +1,8 @@
 const express = require("express");
-var bodyParser = require("body-parser");
+const bodyParser = require("body-parser");
 
 const app = express();
+const cors = require("cors");
 
 const mongoose = require("mongoose");
 
@@ -45,6 +46,8 @@ const swaggerSpec = swaggerJSDoc(options);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+app.use(cors());
+
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -55,8 +58,10 @@ app.use(bodyParser.json());
  * API Routes.
  */
 const contactRoutes = require("./api/routes/contact");
+const userRoutes = require("./api/routes/user");
 
 app.use(urls.CONTACTS, contactRoutes);
+app.use(urls.USER, userRoutes);
 
 /**
  * Start the server on the specified port.

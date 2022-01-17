@@ -1,6 +1,30 @@
 const express = require("express");
 const router = express.Router();
 
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, new Date().toISOString() + file.originalname);
+  },
+});
+
+const uploadFilter = function (req, file, cb) {
+  if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  fileFilter: uploadFilter,
+});
+
 const contactController = require("../controllers/contactController");
 
 /**
@@ -56,7 +80,7 @@ router.get("/numbers/type", contactController.getContactNumbersType);
  *         200:
  *          description: Success
  */
-router.post("/", contactController.postContact);
+router.post("/", upload.single("photograph"), contactController.postContact);
 
 /**
  * @swagger

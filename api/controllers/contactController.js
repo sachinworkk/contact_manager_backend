@@ -5,11 +5,11 @@ const getContact = async (req, res, next) => {
   let contact;
   try {
     contact = await Contact.find({}).populate("phone").exec();
-  } catch (e) {
-    return res.status(404).send(e.message);
-  }
 
-  res.status(200).json(contact);
+    res.status(200).json(contact);
+  } catch (err) {
+    next(err);
+  }
 };
 
 const getContactById = async (req, res, next) => {
@@ -18,20 +18,24 @@ const getContactById = async (req, res, next) => {
     contact = await Contact.find({ _id: req.params.contactId })
       .populate("phone")
       .exec();
-  } catch (e) {
-    return res.status(404).send(e.message);
-  }
 
-  res.status(200).json(contact);
+    res.status(200).json(contact);
+  } catch (err) {
+    next(err);
+  }
 };
 
 const getContactNumbersType = (req, res, next) => {
-  const contactNumbersType = {
-    contactNumbersType:
-      ContactNumber.schema.path("contactNumberType").enumValues,
-  };
+  try {
+    const contactNumbersType = {
+      contactNumbersType:
+        ContactNumber.schema.path("contactNumberType").enumValues,
+    };
 
-  res.status(200).json(contactNumbersType);
+    res.status(200).json(contactNumbersType);
+  } catch (err) {
+    next(err);
+  }
 };
 
 const postContact = async (req, res, next) => {
@@ -41,7 +45,17 @@ const postContact = async (req, res, next) => {
   let createdContact;
 
   try {
-    createdContactNumbers = await ContactNumber.create(req.body.phone);
+    if (!req.file) {
+      throw new Error("File is not found or fileType is wrong");
+    }
+
+    if (!req.body.phone) {
+      throw new Error("Contact is required");
+    }
+
+    createdContactNumbers = await ContactNumber.create(
+      JSON.parse(req.body.phone)
+    );
 
     contactNumbersIds = createdContactNumbers.map(
       (contactNumber) => contactNumber._id
@@ -53,32 +67,65 @@ const postContact = async (req, res, next) => {
       photograph: req.file.path,
       address: req.body.address,
       email: req.body.email,
+      createdBy: req.userData.userId,
     });
 
     createdContact = await contact.save();
-  } catch (e) {
-    return res.status(400).send(e.message);
-  }
 
-  res.status(200).json(createdContact);
+    res.status(200).json(createdContact);
+  } catch (err) {
+    next(err);
+  }
 };
 
-const putContact = (req, res, next) => {
-  res.status(200).json({
-    message: "Handling Put requests to /contacts",
-  });
+const putContact = async (req, res, next) => {
+  let createdContactNumbers;
+  let contactNumbersIds;
+  let photograph;
+  try {
+    createdContactNumbers = await ContactNumber.create(
+      JSON.parse(req.body.phone)
+    );
+
+    contactNumbersIds = createdContactNumbers.map(
+      (contactNumber) => contactNumber._id
+    );
+
+    const contact = await Contact.findById({ _id: req.params.contactId });
+
+    if (req.file == undefined) {
+      photograph = contact.photograph;
+    } else {
+      photograph = req.file.path;
+    }
+
+    Object.assign(contact, {
+      name: req.body.name,
+      phone: contactNumbersIds,
+      photograph: photograph,
+      address: req.body.address,
+      email: req.body.email,
+      createdBy: req.userData.userId,
+    });
+
+    await contact.save();
+
+    res.status(200).json(contact);
+  } catch (err) {
+    next(err);
+  }
 };
 
 const deleteContact = async (req, res, next) => {
   try {
     await Contact.deleteOne({ _id: req.params.contactId });
-  } catch (e) {
-    return res.status(400).send(e.message);
-  }
 
-  res.status(200).json({
-    message: "Contact successfully deleted",
-  });
+    res.status(200).json({
+      message: "Contact successfully deleted",
+    });
+  } catch (err) {
+    next(err);
+  }
 };
 
 module.exports = {

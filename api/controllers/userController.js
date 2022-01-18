@@ -7,7 +7,6 @@ const postUser = (req, res, next) => {
   User.find({ email: req.body.email })
     .exec()
     .then((user) => {
-      console.log(user);
       if (user.length >= 1) {
         return res.status(409).json({
           message: "Email already exists",

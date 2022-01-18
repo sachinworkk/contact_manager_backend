@@ -44,6 +44,7 @@ const options = {
 
 const swaggerSpec = swaggerJSDoc(options);
 
+app.use("/uploads", express.static("uploads"));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(cors());
@@ -62,6 +63,32 @@ const userRoutes = require("./api/routes/user");
 
 app.use(urls.CONTACTS, contactRoutes);
 app.use(urls.USER, userRoutes);
+
+/**
+ * Error handling middleware
+ */
+app.use((err, req, res, next) => {
+  if (err.name === "ValidationError") {
+    const error = {};
+
+    const keys = Object.keys(err.errors);
+
+    keys.forEach((key) => {
+      let message = err.errors[key].message;
+
+      if (err.errors[key].properties && err.errors[key].properties.message) {
+        message = err.errors[key].properties.message.replace("`{PATH}`", key);
+      }
+
+      message = message.replace("Path ", "").replace(key, "").trim();
+      error[key] = message;
+    });
+
+    return res.status(400).json(error);
+  } else {
+    return res.status(500).json({ error: err.message });
+  }
+});
 
 /**
  * Start the server on the specified port.

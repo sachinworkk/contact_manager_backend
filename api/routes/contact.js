@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const multer = require("multer");
+const checkAuth = require("../middleware/check-auth");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -38,7 +39,7 @@ const contactController = require("../controllers/contactController");
  *         200:
  *          description: Success
  */
-router.get("/", contactController.getContact);
+router.get("/", checkAuth, contactController.getContact);
 
 /**
  * @swagger
@@ -54,7 +55,7 @@ router.get("/", contactController.getContact);
  *         200:
  *          description: Success
  */
-router.get("/:contactId", contactController.getContactById);
+router.get("/:contactId", checkAuth, contactController.getContactById);
 
 /**
  * @swagger
@@ -67,7 +68,7 @@ router.get("/:contactId", contactController.getContactById);
  *         200:
  *          description: Success
  */
-router.get("/numbers/type", contactController.getContactNumbersType);
+router.get("/numbers/type", checkAuth, contactController.getContactNumbersType);
 
 /**
  * @swagger
@@ -80,7 +81,12 @@ router.get("/numbers/type", contactController.getContactNumbersType);
  *         200:
  *          description: Success
  */
-router.post("/", upload.single("photograph"), contactController.postContact);
+router.post(
+  "/",
+  checkAuth,
+  upload.single("photograph"),
+  contactController.postContact
+);
 
 /**
  * @swagger
@@ -96,7 +102,12 @@ router.post("/", upload.single("photograph"), contactController.postContact);
  *         200:
  *          description: Success
  */
-router.put("/:contactId", contactController.putContact);
+router.put(
+  "/:contactId",
+  checkAuth,
+  upload.single("photograph"),
+  contactController.putContact
+);
 
 /**
  * @swagger
@@ -112,6 +123,6 @@ router.put("/:contactId", contactController.putContact);
  *         200:
  *          description: Success
  */
-router.delete("/:contactId", contactController.deleteContact);
+router.delete("/:contactId", checkAuth, contactController.deleteContact);
 
 module.exports = router;
